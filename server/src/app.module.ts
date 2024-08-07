@@ -4,8 +4,8 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { join } from 'path';
 import { UsersModule } from './users/users.module';
-import { User } from './users/entities/user.entity';
 import { BlogsModule } from './blogs/blogs.module';
+import { User } from './users/entities/user.entity';
 import { Blog } from './blogs/entities/blog.entity';
 
 @Module({
@@ -23,7 +23,7 @@ import { Blog } from './blogs/entities/blog.entity';
       username: 'postgres',
       password: 'Naga@123',
       database: 'graphql',
-      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      entities: [User, Blog],
       synchronize: true,
     }),
     TypeOrmModule.forFeature([User, Blog]),

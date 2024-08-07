@@ -2,16 +2,18 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type User {
-  id: ID!
-  name: String!
-  email: String!
-}
-
 type Blog {
   id: ID!
   title: String!
   content: String!
+  author: User
+}
+
+type User {
+  id: ID!
+  username: String!
+  email: String!
+  blogs: [Blog!]
 }
 
 type Query {
@@ -31,12 +33,12 @@ type Mutation {
 }
 
 input CreateUserInput {
-  name: String!
+  username: String!
   email: String!
 }
 
 input UpdateUserInput {
-  name: String
+  username: String
   email: String
   id: Int!
 }
@@ -44,10 +46,12 @@ input UpdateUserInput {
 input CreateBlogInput {
   title: String!
   content: String!
+  authorId: ID!
 }
 
 input UpdateBlogInput {
+  id: ID!
   title: String
   content: String
-  id: ID!
+  authorId: ID
 }

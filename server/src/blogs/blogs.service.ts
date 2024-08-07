@@ -1,36 +1,71 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreateBlogInput } from './dto/create-blog.input';
 import { UpdateBlogInput } from './dto/update-blog.input';
-import { InjectRepository } from '@nestjs/typeorm';
 import { Blog } from './entities/blog.entity';
-import { Repository } from 'typeorm';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class BlogsService {
   constructor(
     @InjectRepository(Blog)
-    private blogsRepository: Repository<Blog>,
+    private readonly blogRepository: Repository<Blog>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
   ) {}
 
-  create(createBlogInput: CreateBlogInput): Promise<Blog> {
-    const newBlog = this.blogsRepository.create(createBlogInput);
-    return this.blogsRepository.save(newBlog);
+  async create(createBlogInput: CreateBlogInput): Promise<Blog> {
+    // Find the author using the authorId
+    const author = await this.userRepository.findOne({
+      where: { id: createBlogInput.authorId },
+    });
+    if (!author) {
+      throw new NotFoundException(
+        `User with ID ${createBlogInput.authorId} not found`,
+      );
+    }
+
+    // Create a new blog instance and set the author relation
+    const newBlog = this.blogRepository.create({
+      ...createBlogInput,
+      author,
+    });
+
+    // Save the blog to the database
+    return this.blogRepository.save(newBlog);
   }
 
-  findAll(): Promise<Blog[]> {
-    return this.blogsRepository.find();
+  async findAll(): Promise<Blog[]> {
+    return this.blogRepository.find({ relations: ['author'] });
   }
 
-  findOne(id: number): Promise<Blog> {
-    return this.blogsRepository.findOne({ where: { id } });
+  async findOne(id: number): Promise<Blog> {
+    const blog = await this.blogRepository.findOne({
+      where: { id },
+      relations: ['author'],
+    });
+    if (!blog) {
+      throw new NotFoundException(`Blog with ID ${id} not found`);
+    }
+    return blog;
   }
 
   async update(id: number, updateBlogInput: UpdateBlogInput): Promise<Blog> {
-    await this.blogsRepository.update(id, updateBlogInput);
-    return this.findOne(id);
+    const blog = await this.blogRepository.preload({
+      id,
+      ...updateBlogInput,
+    });
+    if (!blog) {
+      throw new NotFoundException(`Blog with ID ${id} not found`);
+    }
+    return this.blogRepository.save(blog);
   }
 
   async remove(id: number): Promise<void> {
-    await this.blogsRepository.delete(id);
+    const result = await this.blogRepository.delete(id);
+    if (result.affected === 0) {
+      throw new NotFoundException(`Blog with ID ${id} not found`);
+    }
   }
 }
