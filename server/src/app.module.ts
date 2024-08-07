@@ -5,6 +5,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { join } from 'path';
 import { UsersModule } from './users/users.module';
 import { User } from './users/entities/user.entity';
+import { BlogsModule } from './blogs/blogs.module';
+import { Blog } from './blogs/entities/blog.entity';
 
 @Module({
   imports: [
@@ -24,8 +26,9 @@ import { User } from './users/entities/user.entity';
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
     }),
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, Blog]),
     UsersModule,
+    BlogsModule,
   ],
   providers: [],
 })

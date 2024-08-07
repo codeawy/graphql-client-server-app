@@ -8,15 +8,26 @@ type User {
   email: String!
 }
 
+type Blog {
+  id: ID!
+  title: String!
+  content: String!
+}
+
 type Query {
   users: [User!]!
   user(id: Int!): User!
+  blogs: [Blog!]!
+  blog(id: Int!): Blog!
 }
 
 type Mutation {
   createUser(createUserInput: CreateUserInput!): User!
   updateUser(updateUserInput: UpdateUserInput!): User!
   removeUser(id: Int!): User!
+  createBlog(createBlogInput: CreateBlogInput!): Blog!
+  updateBlog(updateBlogInput: UpdateBlogInput!): Blog!
+  removeBlog(id: Int!): Blog!
 }
 
 input CreateUserInput {
@@ -28,4 +39,15 @@ input UpdateUserInput {
   name: String
   email: String
   id: Int!
+}
+
+input CreateBlogInput {
+  title: String!
+  content: String!
+}
+
+input UpdateBlogInput {
+  title: String
+  content: String
+  id: ID!
 }
