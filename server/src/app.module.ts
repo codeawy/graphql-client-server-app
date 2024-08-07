@@ -3,10 +3,8 @@ import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { join } from 'path';
-import { BlogsModule } from './blogs/blogs.module';
-import { Blog } from './blogs/entities/blog.entity';
-import { User } from './users/entities/user.entity';
 import { UsersModule } from './users/users.module';
+import { User } from './users/entities/user.entity';
 
 @Module({
   imports: [
@@ -14,6 +12,7 @@ import { UsersModule } from './users/users.module';
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       playground: true,
+      debug: true,
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -22,12 +21,11 @@ import { UsersModule } from './users/users.module';
       username: 'postgres',
       password: 'Naga@123',
       database: 'graphql',
-      entities: [join(__dirname, '**/*.entities{.ts,.js}')],
+      entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
     }),
-    TypeOrmModule.forFeature([User, Blog]),
+    TypeOrmModule.forFeature([User]),
     UsersModule,
-    BlogsModule,
   ],
   providers: [],
 })
